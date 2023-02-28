@@ -1,0 +1,11 @@
+.idea
+*.iml
+
+models/*
+*.db
+db/
+*.wav
+node_modules/
+package-lock.json
+build
+.env*
