@@ -1,7 +1,7 @@
 {
-  "name": "web",
+  "name": "sutts-web",
+  "homepage": "https://sucicada.github.io/sutts-homepage/",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -10,25 +10,18 @@
     "@types/node": "^16.18.12",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
-    "dotenv": "^16.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
     "typescript": "^4.9.5",
-    "use-sound": "^4.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "eject": "react-scripts eject",
+    "act-debug": "./act-debug.sh"
   },
   "browserslist": {
     "production": [
