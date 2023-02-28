@@ -50,6 +50,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm install
+      - run: echo "${{ secrets.ENV_PRODUCTION }}" > .env.production
       - run: npm run build
 
       - name: Pushes to another repository
