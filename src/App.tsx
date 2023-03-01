@@ -1,70 +1,51 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import './App.css';
-// import dotenv from 'dotenv';
 
 import {SPEAKERS, TEXT_DATA,} from "./data";
 
-// dotenv.config();
 const url = `${process.env.REACT_APP_SUTTS_SERVER}/audio/so_vits_svc`;
 const autoPlay = false
+const AudioCache: { [key: string]: string } = {}
+const PlayingAudio: HTMLAudioElement[] = []
 
 function App() {
-  // const [audio, setAudio] = useState(new ArrayBuffer(0))
   const [audioUrl, setAudioUrl] = useState('')
   const [currentSpeaker, setCurrentSpeaker] = useState(SPEAKERS[0].id)
-  // const playAudio = (arrayBuffer: ArrayBuffer) => {
-  // }
-  // const [play] = useSound(audioUrl);
 
-  // useEffect(() => {
-  //   console.log(audioUrl)
-  //   play();
-  // }, [play, audioUrl])
   const playAudio = async (text: string, speaker: string) => {
-    setAudioUrl("")
+    const key = `${text}||||${speaker}`
+    let dataUrl = ""
+    if (!(key in AudioCache)) {
+      setAudioUrl("")
+      const res = await getAudioData(text, speaker)
+      console.log(res)
+      if (res?.audioData) {
+        const arrayBuffer = res.audioData
+        console.log(res.audioData)
+        dataUrl = `data:audio/wav;base64,${arrayBufferToBase64(arrayBuffer)}`
+        setAudioUrl(dataUrl)
+        AudioCache[key] = dataUrl
+      }
 
-    const res = await getAudioData(text, speaker)
-    console.log(res)
-    // console.log(res?.audioData && 1)
-    if (res?.audioData) {
-      const arrayBuffer = res.audioData
-      console.log(res.audioData)
-      //   setAudio(res.audioData)
-      // const base64String = btoa(String.fromCharCode.apply(null,
-      //   arrayBuffer as unknown as number[]));
-      // let audioBlob = new Blob([arrayBuffer], {type: 'audio/wav'}),
-      //   dataUrl = URL.createObjectURL(audioBlob)
-      // const dataUrl = `data:audio/wav;base64,${url}`;
-      const dataUrl = `data:audio/wav;base64,${arrayBufferToBase64(arrayBuffer)}`
-      // console.log(dataUrl)
-      // setAudioUrl(dataUrl)
-      // play();
-      setAudioUrl(dataUrl)
+    } else {
+      dataUrl = AudioCache[key]
+    }
+
+    if (dataUrl) {
       const audio = new Audio(dataUrl);
+      PlayingAudio.push(audio)
       audio.playbackRate = 1.25
       await audio.play();
-
-
-//                     const audioCtx = new AudioContext();
-//                     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-// // Create an AudioBufferSourceNode to play back the audio
-//                     const sourceNode = audioCtx.createBufferSource();
-//                     sourceNode.buffer = audioBuffer;
-// // Set the playback rate (e.g. 2.0 for double speed)
-//                     sourceNode.playbackRate.value = 1.25
-// // Connect the AudioBufferSourceNode to the destination (i.e. the speakers)
-//                     sourceNode.connect(audioCtx.destination);
-// // Start playing the audio
-//                     sourceNode.start();
     }
   }
+
   return (
     <div className="App">
       <h1>生きてください。</h1>
       <div>
         {SPEAKERS.map((speaker, index) => {
           return (
-            <label key={index}>
+            <label key={speaker.id}>
               <input type="radio" name="speaker"
                      value={speaker.id}
                 // defaultChecked={index === 0}
@@ -79,6 +60,12 @@ function App() {
       <audio src={audioUrl} controls autoPlay={autoPlay} onCanPlay={(e) => {
         e.currentTarget.playbackRate = 1.25
       }}></audio>
+      <button onClick={() => {
+        PlayingAudio.forEach(audio => audio.pause())
+        PlayingAudio.length = 0
+        setAudioUrl("")
+      }}>全部停止
+      </button>
       <table>
         <tbody>
         {TEXT_DATA.map((text, index) => {
@@ -125,11 +112,8 @@ const getAudioData = async (text: string, speaker: string) => {
     .then(async response => {
       const audioData = await response.arrayBuffer()
       const jsonData = await response.headers.get('Response-Data')
-      // console.log(await response)
-      // console.log(Object.fromEntries(response.headers))
-      // response.headers.forEach(console.log);
-      // console.log(jsonData)
       const json = jsonData ? JSON.parse(jsonData) : {}
+
       console.log(json)
       console.log(audioData)
       const sampling_rate = json["sampling_rate"]
