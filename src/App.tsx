@@ -15,15 +15,14 @@ function App() {
   const playAudio = async (text: string, speaker: string) => {
     const key = `${text}||||${speaker}`
     let dataUrl = ""
+    setAudioUrl("")
     if (!(key in AudioCache)) {
-      setAudioUrl("")
       const res = await getAudioData(text, speaker)
       console.log(res)
       if (res?.audioData) {
         const arrayBuffer = res.audioData
         console.log(res.audioData)
         dataUrl = `data:audio/wav;base64,${arrayBufferToBase64(arrayBuffer)}`
-        setAudioUrl(dataUrl)
         AudioCache[key] = dataUrl
       }
 
@@ -32,6 +31,7 @@ function App() {
     }
 
     if (dataUrl) {
+      setAudioUrl(dataUrl)
       const audio = new Audio(dataUrl);
       PlayingAudio.push(audio)
       audio.playbackRate = 1.25
