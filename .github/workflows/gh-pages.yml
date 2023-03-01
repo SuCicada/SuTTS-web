@@ -1,4 +1,4 @@
-name: Deploy Hugo
+name: SuTTS-web
 
 on:
   push:
